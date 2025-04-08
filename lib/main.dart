@@ -41,9 +41,19 @@ class _MyHomePageState extends State<MyHomePage> {
     var response = http.get(url)
      .then(
         (response) {
-          return jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+          if (response.statusCode == 200) {
+            return jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+          } else {
+
+          }
         }
-     );
+     ).catchError((e) {
+
+    }) ;
+  }
+
+  void handleUserClick(TextEditingController input) {
+
   }
 
   @override
@@ -85,7 +95,9 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(onPressed: , child: child)
+                ElevatedButton(
+                    onPressed: () => handleUserClick(userId),
+                    child: Text("Buscar"))
               ],
             )
           ],
