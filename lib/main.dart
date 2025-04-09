@@ -141,9 +141,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void handleUserClick(TextEditingController input) {
-    // if (input.toString() == '') {
+    int? userIdParsed = int.tryParse(input.text);
+    if (userIdParsed == null) {
+      apiErrorDialog("Por favor digite números!");
+    } else {
       userGetter(input.text);
-    // }
+    }
   }
 
   @override
@@ -161,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Teste", style: Theme.of(context).textTheme.headlineMedium),
+                Text("Encontre o Usuário", style: Theme.of(context).textTheme.headlineMedium),
               ],
             ),
             Row(
