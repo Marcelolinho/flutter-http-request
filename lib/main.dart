@@ -36,24 +36,105 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   TextEditingController userId = new TextEditingController();
 
+  void apiErrorDialog(String e) {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              constraints: BoxConstraints(maxHeight: 500),
+              padding: EdgeInsets.all(20),
+              color: Colors.red[50],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Seguinte erro retornado:',
+                    style: TextStyle(color: Colors.red[800], fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 20),
+                  Text(e, style: TextStyle(color: Colors.red[900]),),
+                  SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Fecha o popup
+                      },
+                      child: Text('Voltar', style: TextStyle(color: Colors.red[800]),),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        },
+      );
+  }
+
+  void apiOkDialog(Map user) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            constraints: BoxConstraints(maxHeight: 500),
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: NetworkImage(user['avatar']),
+                ),
+                SizedBox(height: 16),
+                Text('Nome: ${user['first_name']}'),
+                Text('Email: ${user['email']}'),
+                SizedBox(height: 24),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Fecha o popup
+                    },
+                    child: Text('Fechar'),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void userGetter(String user) {
-    var url = Uri.parse("https://reqres.in/api/users/$user");
-    var response = http.get(url)
+    var url = http.get(Uri.parse("https://reqres.in/api/users/$user"))
      .then(
         (response) {
+          var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
           if (response.statusCode == 200) {
-            return jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+            // print(jsonDecode(utf8.decode(response.bodyBytes)) as Map);
+            apiOkDialog(decodedResponse['data']);
           } else {
-
+            apiErrorDialog("Usuário não encontrado Jovem!");
           }
         }
      ).catchError((e) {
-
-    }) ;
+        print(e);
+    });
   }
 
   void handleUserClick(TextEditingController input) {
-
+    // if (input.toString() == '') {
+      userGetter(input.text);
+    // }
   }
 
   @override
