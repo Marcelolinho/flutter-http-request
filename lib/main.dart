@@ -114,21 +114,30 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void userGetter(String user) {
-    var url = http.get(Uri.parse("https://reqres.in/api/users/$user"))
-     .then(
-        (response) {
-          var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-          if (response.statusCode == 200) {
-            // print(jsonDecode(utf8.decode(response.bodyBytes)) as Map);
-            apiOkDialog(decodedResponse['data']);
-          } else {
-            apiErrorDialog("Usuário não encontrado Jovem!");
-          }
+  void userGetter(String user) async {
+    try {
+      final response = await http.get(Uri.parse("https://reqres.in/api/users/$user"));
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+
+        if (decodedResponse.containsKey('data')) {
+          apiOkDialog(decodedResponse['data']);
+        } else {
+          apiErrorDialog("Resposta inesperada da API.");
         }
-     ).catchError((e) {
-        print(e);
-    });
+      } else if (response.statusCode == 404) {
+        apiErrorDialog("Usuário não encontrado Jovem!");
+      } else {
+        apiErrorDialog("Erro ${response.statusCode}: ${response.reasonPhrase}");
+      }
+    } catch (e) {
+      if (mounted) {
+        apiErrorDialog("Erro inesperado: $e");
+      }
+    }
   }
 
   void handleUserClick(TextEditingController input) {
